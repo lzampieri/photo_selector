@@ -1,7 +1,5 @@
 package com.example.photoselector.data
 
-import FolderDao
-import ImageDao
 import kotlinx.coroutines.flow.Flow
 
 class DatabaseImagesRepository(

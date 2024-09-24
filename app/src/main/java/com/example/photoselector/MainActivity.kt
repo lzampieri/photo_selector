@@ -1,6 +1,7 @@
 package com.example.photoselector
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,7 +21,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-
+import androidx.compose.ui.platform.LocalContext
+import com.example.photoselector.data.ImagesRepository
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,21 +32,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PhotoSelectorTheme {
-                FoldersList()
+                FoldersList( (application as PhotoselectorApplication).container.imagesRepository )
             }
         }
     }
 }
 
 @Composable
-fun FoldersList( ) {
+fun FoldersList( imagesRepository: ImagesRepository ) {
     var folderId by remember { mutableIntStateOf(1) }
     Column {
         FolderBanner("Prima cartella")
         FolderBanner("Seconda cartella")
         FolderBanner("Terza cartella")
         Text( "Folder picked $folderId" )
-        RandomFolderButton( onClick = { folderId = (1..6).random() } )
+        RandomFolderButton( onClick = {
+            runBlocking {
+                Log.d("Photoselector", imagesRepository.getAllFolders().first().toString() )
+            }
+            folderId = (1..6).random()
+        } )
     }
 }
 
@@ -60,10 +69,10 @@ fun RandomFolderButton( onClick: () -> Unit ) {
     }
 }
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun FoldersListPreview() {
     PhotoSelectorTheme {
         FoldersList()
     }
-}
+}*/

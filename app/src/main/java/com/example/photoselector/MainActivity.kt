@@ -1,56 +1,62 @@
 package com.example.photoselector
 
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import com.example.photoselector.ui.theme.PhotoSelectorTheme
 import androidx.compose.material3.Button
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.example.photoselector.data.ImagesRepository
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import androidx.lifecycle.lifecycleScope
+import com.example.photoselector.data.Folder
+import com.example.photoselector.data.ImagesRepositoryInterface
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    private val getFolderPath = registerForActivityResult( ActivityResultContracts.OpenDocumentTree() ) {
+        uri: Uri? ->
+        if( uri != null ) {
+            lifecycleScope.launch( Dispatchers.IO ) {
+                (application as PhotoselectorApplication).container.imagesRepository.addFolderIfNotExists(
+                    uri ?. path ?: ""
+                )
+            }
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             PhotoSelectorTheme {
-                FoldersList( (application as PhotoselectorApplication).container.imagesRepository )
+                FoldersList( (application as PhotoselectorApplication).container.imagesRepository, getFolderPath )
             }
         }
     }
 }
 
 @Composable
-fun FoldersList( imagesRepository: ImagesRepository ) {
-    var folderId by remember { mutableIntStateOf(1) }
+fun FoldersList(imagesRepository: ImagesRepositoryInterface, getFolderIntentLauncher: ActivityResultLauncher<Uri?> ) {
+    val foldersList by imagesRepository.getAllFolders().collectAsState(listOf<Folder>())
     Column {
-        FolderBanner("Prima cartella")
-        FolderBanner("Seconda cartella")
-        FolderBanner("Terza cartella")
-        Text( "Folder picked $folderId" )
+        foldersList.forEach() { k -> FolderBanner( k.path ) }
         RandomFolderButton( onClick = {
-            runBlocking {
-                Log.d("Photoselector", imagesRepository.getAllFolders().first().toString() )
-            }
-            folderId = (1..6).random()
+            getFolderIntentLauncher.launch(null )
         } )
     }
 }
@@ -58,7 +64,7 @@ fun FoldersList( imagesRepository: ImagesRepository ) {
 @Composable
 fun FolderBanner(name: String) {
     Text(
-        text = "Folder $name!",
+        text = "Folder $name!"
     )
 }
 

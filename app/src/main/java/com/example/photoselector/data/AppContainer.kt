@@ -7,9 +7,10 @@ interface AppContainer {
 }
 
 class ActualAppContainer(private val context: Context) : AppContainer {
-    override val imagesRepository: ImagesRepositoryInterface =
+    override val imagesRepository: ImagesRepositoryInterface by lazy {
         ImagesRepositoryImplDatabase(
             TheDatabase.getDatabase(context).folderDao(),
             TheDatabase.getDatabase(context).imageDao()
         )
+    }
 }

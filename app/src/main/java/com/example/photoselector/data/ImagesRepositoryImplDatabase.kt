@@ -9,6 +9,7 @@ class ImagesRepositoryImplDatabase(
 ) : ImagesRepositoryInterface {
 
     override fun getAllFolders(): Flow<List<Folder>> = folderDao.getAllFolders()
+    override suspend fun deleteFolder(folder: Folder): Unit = folderDao.delete( folder )
 
     override suspend fun addFolderIfNotExists( path: String ): Boolean {
         return path.isNotEmpty() && !(folderDao.checkIfExists( path )) && folderDao.insert( Folder( path = path ) ) > 0

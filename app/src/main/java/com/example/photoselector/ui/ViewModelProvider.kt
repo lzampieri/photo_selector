@@ -18,6 +18,7 @@ object ViewModelProvider {
         initializer {
             MainViewModel(
                 theApp().applicationContext,
+                theApp().contentResolver,
                 theApp().container.imagesRepository
             )
         }

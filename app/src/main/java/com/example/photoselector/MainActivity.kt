@@ -1,8 +1,11 @@
 package com.example.photoselector
 
+import android.content.Intent
+import android.content.UriPermission
 import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +18,8 @@ import com.example.photoselector.ui.theme.PhotoSelectorTheme
 import androidx.compose.material3.Button
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.example.photoselector.data.Folder
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +34,8 @@ class MainActivity : ComponentActivity() {
         uri: Uri? ->
         if( uri != null ) {
             lifecycleScope.launch( Dispatchers.IO ) {
+                contentResolver.takePersistableUriPermission( uri, Intent.FLAG_GRANT_READ_URI_PERMISSION + Intent.FLAG_GRANT_WRITE_URI_PERMISSION )
+
                 (application as PhotoselectorApplication).container.imagesRepository.addFolderIfNotExists(
                     uri.toString()
                 )

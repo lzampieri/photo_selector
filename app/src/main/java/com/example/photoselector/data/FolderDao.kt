@@ -23,6 +23,9 @@ interface FolderDao {
     @Query("SELECT * from folders")
     fun getAllFolders(): Flow<List<Folder>>
 
+    @Query("SELECT * from folders WHERE id = :id")
+    suspend fun getFolder( id: Int ): Folder
+
     @Query("SELECT EXISTS(SELECT * FROM folders WHERE path = :path)")
     fun checkIfExists( path: String ): Boolean
 }

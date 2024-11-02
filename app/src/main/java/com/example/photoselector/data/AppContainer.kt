@@ -1,9 +1,12 @@
 package com.example.photoselector.data
 
 import android.content.Context
+import android.net.Uri
+import androidx.activity.result.ActivityResultLauncher
 
 interface AppContainer {
     val imagesRepository: ImagesRepositoryInterface
+    var pickFolderIntentLauncher: ActivityResultLauncher<Uri?>?
 }
 
 class ActualAppContainer(private val context: Context) : AppContainer {
@@ -13,4 +16,5 @@ class ActualAppContainer(private val context: Context) : AppContainer {
             TheDatabase.getDatabase(context).imageDao()
         )
     }
+    override var pickFolderIntentLauncher: ActivityResultLauncher<Uri?>? = null
 }

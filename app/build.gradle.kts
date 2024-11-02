@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("plugin.serialization") version "2.0.21"
     id("com.google.devtools.ksp")
 }
 
@@ -77,4 +78,10 @@ dependencies {
 
     //Document
     implementation(libs.androidx.documentfile)
+
+    //Navigation
+    implementation(libs.androidx.navigation)
+
+    //Serialization
+    implementation(libs.kotlinx.serialization.json)
 }

@@ -1,16 +1,17 @@
 package com.example.photoselector.ui.main
 
-import android.content.ContentResolver
-import android.content.Context
-import android.content.UriPermission
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import com.example.photoselector.PhotoselectorApplication
 import com.example.photoselector.data.AppContainer
 import com.example.photoselector.data.Folder
-import com.example.photoselector.data.ImagesRepositoryInterface
+import com.example.photoselector.data.FolderAndCounts
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.last
@@ -18,66 +19,73 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class AppViewModel (
-    public val appContainer: AppContainer
+    public val appContainer: AppContainer,
 ) : ViewModel() {
 
-    val folders : Flow<List<Folder>> = appContainer.imagesRepository.getAllFolders()
+    val folders : Flow<List<FolderAndCounts>> = appContainer.imagesRepository.getAllFolders()
     val selectedFolder: MutableStateFlow<Folder?> = MutableStateFlow( null )
-    val loading = MutableStateFlow( false )
+    val loading = MutableStateFlow( 0 )
+    val imagesDbLoading = MutableStateFlow( 0 )
 
-    fun selectFolder( folderId: Int ) {
-        if( folderId == selectedFolder.value?.id ) return
-        loading.value = true
-        viewModelScope.launch {
-            selectedFolder.value = appContainer.imagesRepository.getFolder( folderId )
-            loading.value = false
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            refreshFoldersContent()
         }
     }
 
-}
+    fun selectFolder( folderId: Int ) {
+        if( folderId == selectedFolder.value?.id ) return
+        loading.value += 1
+        viewModelScope.launch(Dispatchers.IO) {
+            selectedFolder.value = appContainer.imagesRepository.getFolder( folderId )
+            loading.value -= 1
+        }
+    }
 
-//class AppViewModel(
-//    private val context: Context,
-//    private val contentResolver: ContentResolver, // todo REMOVE
-//    private val imagesRepositoryInterface: ImagesRepositoryInterface
-//) : ViewModel() {
-//
-//    val folders : Flow<List<Folder>> = imagesRepositoryInterface.getAllFolders()
-//
-//    init {
-//        viewModelScope.launch {
-//            updateFoldersList()
-//        }
-//    }
-//
-//    suspend fun updateFoldersList() {
-//        val list: List<UriPermission> = contentResolver.persistedUriPermissions
-//        Log.d("Directory permission", list.count().toString() )
-//        list.forEach { uri ->
-//            Log.d("Directory Permission", uri.toString() )
-//        }
-//
-//
-//        val fl: List<Folder> = imagesRepositoryInterface.getAllFolders().take(1).last()
-//
-//        fl.forEach { ff ->
-//            try {
-//                var dt = DocumentFile.fromTreeUri( context, Uri.parse( ff.path ) )
-//                // todo ADD CHECK FOR dt PERMISSIONS EXPIRED
-//                Log.d( "Directory", "===" )
-//                Log.d( "Directory", Uri.parse( ff.path ).toString() )
-//                dt?.listFiles()?.forEach { fff ->
-//                    Log.d( "Directory", fff.toString() )
-//                }
-//                /*(application as PhotoselectorApplication).container.imagesRepository.addFolderIfNotExists(
-//                    uri.toString()
-//                )*/
-//
-//            } catch ( e: IllegalArgumentException ) {
-//                Log.d("Directory", "Directory ${ff.toString()} should be deleted since it returns an illegal argument exception" )
-//                imagesRepositoryInterface.deleteFolder( ff )
-//            }
-//        }
-//    }
-//
-//}
+    fun deleteSelectedFolder() {
+        if( selectedFolder.value == null ) return
+        loading.value += 1
+        viewModelScope.launch(Dispatchers.IO) {
+            appContainer.imagesRepository.deleteFolder( selectedFolder.value!! )
+            loading.value -= 1
+        }
+    }
+
+    fun addFolder( uri: Uri ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            addFolderAct( uri )
+        }
+    }
+
+    private suspend fun addFolderAct(uri: Uri ) {
+        appContainer.appContext.contentResolver.takePersistableUriPermission(
+            uri, Intent.FLAG_GRANT_READ_URI_PERMISSION + Intent.FLAG_GRANT_WRITE_URI_PERMISSION )
+
+        appContainer.imagesRepository.addFolderIfNotExists(
+            uri.toString()
+        )
+        refreshFoldersContent()
+    }
+
+    private suspend fun refreshFoldersContent() {
+        imagesDbLoading.value += 1
+
+        val fl: List<FolderAndCounts> = appContainer.imagesRepository.getAllFolders().take(1).last()
+
+        fl.forEach { ff ->
+            try {
+                val dt = DocumentFile.fromTreeUri( appContainer.appContext, Uri.parse( ff.path ) )
+                dt?.listFiles()?.forEach { fff ->
+                    if(fff.type?.startsWith("image") == true)
+                        appContainer.imagesRepository.addImageIfNotExists( ff.id, fff.toString() )
+                }
+
+            } catch ( e: IllegalArgumentException ) {
+                // appContainer.imagesRepository.deleteFolder( ff ) // TODO gestire
+            }
+        }
+
+        imagesDbLoading.value -= 1
+    }
+
+}

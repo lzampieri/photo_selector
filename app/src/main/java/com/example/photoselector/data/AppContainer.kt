@@ -7,6 +7,7 @@ import androidx.activity.result.ActivityResultLauncher
 interface AppContainer {
     val imagesRepository: ImagesRepositoryInterface
     var pickFolderIntentLauncher: ActivityResultLauncher<Uri?>?
+    val appContext: Context
 }
 
 class ActualAppContainer(private val context: Context) : AppContainer {
@@ -17,4 +18,5 @@ class ActualAppContainer(private val context: Context) : AppContainer {
         )
     }
     override var pickFolderIntentLauncher: ActivityResultLauncher<Uri?>? = null
+    override val appContext: Context = context
 }

@@ -13,14 +13,20 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ImageDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(folder: Folder)
+    suspend fun insert(image: Image): Long
 
     @Update
-    suspend fun update(folder: Folder)
+    suspend fun update(image: Image)
 
     @Delete
-    suspend fun delete(folder: Folder)
+    suspend fun delete(image: Image)
+
+    @Query("DELETE from images WHERE folder_id = :folderId")
+    suspend fun deleteByFolder( folderId: Int )
 
     @Query("SELECT * from images")
     fun getAllImages(): Flow<List<Image>>
+
+    @Query("SELECT EXISTS(SELECT * FROM images WHERE path = :path)")
+    fun checkIfExists( path: String ): Boolean
 }

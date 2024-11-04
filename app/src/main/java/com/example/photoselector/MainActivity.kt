@@ -22,13 +22,7 @@ class MainActivity : ComponentActivity() {
     private val pickFolderIntentLauncher = registerForActivityResult( ActivityResultContracts.OpenDocumentTree() ) {
             uri: Uri? ->
         if( uri != null ) {
-            lifecycleScope.launch( Dispatchers.IO ) {
-                contentResolver.takePersistableUriPermission( uri, Intent.FLAG_GRANT_READ_URI_PERMISSION + Intent.FLAG_GRANT_WRITE_URI_PERMISSION )
-
-                (application as PhotoselectorApplication).container.imagesRepository.addFolderIfNotExists(
-                    uri.toString()
-                )
-            }
+            appViewModel.addFolder( uri )
         }
     }
 

@@ -19,7 +19,7 @@ import androidx.room.PrimaryKey
     ])
 data class Image(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "folder_id") val folder: Int,
-    val filename: String,
+    @ColumnInfo(name = "folder_id") val folderId: Int,
+    val path: String,
     val action: String?
 )

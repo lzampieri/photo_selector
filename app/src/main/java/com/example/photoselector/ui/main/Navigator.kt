@@ -7,15 +7,21 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
@@ -38,27 +44,68 @@ fun Navigator(
     viewModel: AppViewModel,
     navController: NavHostController = rememberNavController()
 ) {
+    val loading by viewModel.loading.collectAsState()
+    val imagesDbLoading by viewModel.imagesDbLoading.collectAsState()
     Scaffold { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(8.dp)
+                .fillMaxSize()
         ) {
-            NavHost(
-                navController = navController,
-                startDestination = NavDestination.FoldersIndex,
-                enterTransition = { EnterTransition.None },
-                exitTransition = { ExitTransition.None }
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
             ) {
-                composable<NavDestination.FoldersIndex> {
-                    FoldersIndexScreen(viewModel, onFolderSelect = { folderId -> navController.navigate( NavDestination.FolderContent( folderId ) ) })
+                NavHost(
+                    navController = navController,
+                    startDestination = NavDestination.FoldersIndex,
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }
+                ) {
+                    composable<NavDestination.FoldersIndex> {
+                        FoldersIndexScreen(
+                            viewModel,
+                            onFolderSelect = { folderId ->
+                                navController.navigate(
+                                    NavDestination.FolderContent(folderId)
+                                )
+                            })
+                    }
+                    composable<NavDestination.FolderContent>(
+                        enterTransition = {
+                            slideIntoContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Start,
+                                tween(300)
+                            )
+                        },
+                        exitTransition = {
+                            slideOutOfContainer(
+                                AnimatedContentTransitionScope.SlideDirection.End,
+                                tween(300)
+                            )
+                        }
+                    ) { backStackEntry ->
+                        val destination: NavDestination.FolderContent = backStackEntry.toRoute()
+                        FolderScreen(
+                            viewModel,
+                            destination.folderId,
+                            onBackClick = { navController.popBackStack() })
+                    }
                 }
-                composable<NavDestination.FolderContent>(
-                    enterTransition = { slideIntoContainer( AnimatedContentTransitionScope.SlideDirection.Start, tween(300) ) },
-                    exitTransition = { slideOutOfContainer( AnimatedContentTransitionScope.SlideDirection.End, tween(300) ) }
-                ) { backStackEntry ->
-                    val destination: NavDestination.FolderContent = backStackEntry.toRoute()
-                    FolderScreen(viewModel, destination.folderId, onBackClick = { navController.popBackStack() } )
+            }
+            if( loading + imagesDbLoading > 0 ) {
+                Box(
+                    Modifier.matchParentSize()
+                        .background(MaterialTheme.colorScheme.surfaceDim),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column {
+                        CircularProgressIndicator()
+                        if( imagesDbLoading > 0 ) {
+                            Text( text = "Scansione delle cartelle in corso....")
+                        }
+                    }
+
                 }
             }
         }

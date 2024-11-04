@@ -20,11 +20,13 @@ interface FolderDao {
     @Delete
     suspend fun delete(folder: Folder)
 
-    @Query("SELECT * from folders")
-    fun getAllFolders(): Flow<List<Folder>>
+    @Query("SELECT * from folders LEFT JOIN" +
+            "( SELECT folder_id, Count(*) AS img_count FROM images GROUP BY folder_id ) AS grp_images ON folders.id = grp_images.folder_id  LEFT JOIN" +
+            "( SELECT folder_id, Count(*) AS img_noact_count FROM images WHERE 'action' IS NULL GROUP BY folder_id ) AS grp_noact_images ON folders.id = grp_noact_images.folder_id")
+    fun getAllFolders(): Flow<List<FolderAndCounts>>
 
     @Query("SELECT * from folders WHERE id = :id")
-    suspend fun getFolder( id: Int ): Folder
+    suspend fun getFolder( id: Int ): Folder?
 
     @Query("SELECT EXISTS(SELECT * FROM folders WHERE path = :path)")
     fun checkIfExists( path: String ): Boolean

@@ -84,4 +84,7 @@ dependencies {
 
     //Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // Images
+    implementation(libs.coil3.coil.compose)
 }

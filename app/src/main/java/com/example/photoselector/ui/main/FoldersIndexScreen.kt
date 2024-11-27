@@ -25,10 +25,12 @@ import java.net.URLDecoder
 fun FoldersIndexScreen(viewModel: AppViewModel, onFolderSelect: (Int) -> Unit ) {
     val foldersList by viewModel.folders.collectAsState(listOf<FolderAndCounts>())
     Column( Modifiers.mainColumn() ) {
-        foldersList.forEach() { k -> FolderBanner( k, onFolderSelect ) }
         PickFolderButton( onClick = {
             viewModel.appContainer.pickFolderIntentLauncher?.launch(null )
         } )
+        Column( Modifiers.scrollableColumn() ) {
+            foldersList.forEach() { k -> FolderBanner(k, onFolderSelect) }
+        }
     }
 }
 

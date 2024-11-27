@@ -1,5 +1,7 @@
 package com.example.photoselector.data
 
+import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.flow.Flow
 import java.net.URLDecoder
 
@@ -12,6 +14,10 @@ class ImagesRepositoryImplDatabase(
 
     override suspend fun getFolder(id: Int): Folder? {
         return folderDao.getFolder( id )
+    }
+
+    override fun getImagesFromFolder(id: Int): Flow<List<Image>> {
+        return imageDao.getImagesFromFolder( id )
     }
 
     override suspend fun deleteFolder(folder: Folder): Unit {
@@ -34,14 +40,13 @@ class ImagesRepositoryImplDatabase(
         return folderDao.insert( Folder( path = path, name = name ) ) > 0
     }
 
-    override suspend fun addImageIfNotExists(folderId: Int, path: String): Boolean {
-        if( path.isEmpty() )
-            return false; // TODO Snackbar "Seleziona qualcosa"
+    override suspend fun addImageIfNotExists(folderId: Int, documentFile: DocumentFile ): Boolean {
         if( folderDao.getFolder( folderId ) == null )
             return false; // TODO Snackbar "La cartella non esiste"
+        val path: String = documentFile.uri.toString()
         if( (imageDao.checkIfExists( path )) )
             return false;
 
-        return imageDao.insert( Image( folderId = folderId, path = path, action = "" ) ) > 0
+        return imageDao.insert( Image( folderId = folderId, path = path, name = documentFile.name ?: "Unnamed", action = "" ) ) > 0
     }
 }

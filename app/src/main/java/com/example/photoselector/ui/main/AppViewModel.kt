@@ -11,6 +11,7 @@ import com.example.photoselector.PhotoselectorApplication
 import com.example.photoselector.data.AppContainer
 import com.example.photoselector.data.Folder
 import com.example.photoselector.data.FolderAndCounts
+import com.example.photoselector.data.Image
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,9 +28,13 @@ class AppViewModel (
     val loading = MutableStateFlow( 0 )
     val imagesDbLoading = MutableStateFlow( 0 )
 
+    // val images : MutableStateFlow<List<Image>> = MutableStateFlow( emptyList() )
+    val images: Flow<List<Image>>
+        get() = this.appContainer.imagesRepository.getImagesFromFolder( selectedFolder.value?.id ?: -1 )
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            refreshFoldersContent()
+            //refreshFoldersContent() // TODO re-enable
         }
     }
 
@@ -77,7 +82,7 @@ class AppViewModel (
                 val dt = DocumentFile.fromTreeUri( appContainer.appContext, Uri.parse( ff.path ) )
                 dt?.listFiles()?.forEach { fff ->
                     if(fff.type?.startsWith("image") == true)
-                        appContainer.imagesRepository.addImageIfNotExists( ff.id, fff.toString() )
+                        appContainer.imagesRepository.addImageIfNotExists( ff.id, fff )
                 }
 
             } catch ( e: IllegalArgumentException ) {

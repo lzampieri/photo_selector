@@ -21,5 +21,6 @@ data class Image(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "folder_id") val folderId: Int,
     val path: String,
+    val name: String,
     val action: String?
 )

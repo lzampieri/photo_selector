@@ -1,14 +1,14 @@
 package com.example.photoselector.data
 
-import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.flow.Flow
 import java.net.URLDecoder
 
-class ImagesRepositoryImplDatabase(
+class RepositoryImplDatabase(
     private val folderDao: FolderDao,
-    private val imageDao: ImageDao
-) : ImagesRepositoryInterface {
+    private val imageDao: ImageDao,
+    private val actionDao: ActionDao
+) : RepositoryInterface {
 
     override fun getAllFolders(): Flow<List<FolderAndCounts>> = folderDao.getAllFolders()
 
@@ -48,5 +48,22 @@ class ImagesRepositoryImplDatabase(
             return false;
 
         return imageDao.insert( Image( folderId = folderId, path = path, name = documentFile.name ?: "Unnamed", action = "" ) ) > 0
+    }
+
+    override fun getAllActions(): Flow<List<Action>> = actionDao.getAllActions()
+
+    override suspend fun addAction(name: String, copy: Boolean, icon: Int, path: String): Long {
+        return actionDao.insert( Action( name = name, copy = copy, icon = icon, path = path, hidden = false ) )
+    }
+
+    override suspend fun hideAction(action: Action) {
+        actionDao.update( Action(
+            id = action.id,
+            name = action.name,
+            copy = action.copy,
+            path = action.path,
+            icon = action.icon,
+            hidden = true
+        ) )
     }
 }

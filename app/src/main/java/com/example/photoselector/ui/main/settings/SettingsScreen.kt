@@ -1,7 +1,6 @@
-package com.example.photoselector.ui.main
+package com.example.photoselector.ui.main.settings
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -10,7 +9,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +36,7 @@ fun SettingsScreen(viewModel: AppViewModel, onNewAction: () -> Unit ) {
             Icon( Icons.Outlined.Add, "Add action" )
         }
     } ) {
-        Column(Modifiers.mainColumn().background(MaterialTheme.colorScheme.surfaceDim)) {
+        Column(Modifiers.mainColumn()) {
             Column(Modifiers.scrollableColumn()) {
                 actionsList.forEach() { k -> ActionBanner(k, viewModel) }
             }

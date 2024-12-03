@@ -1,4 +1,4 @@
-package com.example.photoselector.ui.main
+package com.example.photoselector.ui.main.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

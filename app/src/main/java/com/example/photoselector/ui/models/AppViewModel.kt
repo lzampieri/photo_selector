@@ -26,7 +26,6 @@ class AppViewModel (
     val loading = MutableStateFlow( 0 )
     val imagesDbLoading = MutableStateFlow( 0 )
 
-    // val images : MutableStateFlow<List<Image>> = MutableStateFlow( emptyList() )
     val images: Flow<List<Image>>
         get() = this.appContainer.repository.getImagesFromFolder( selectedFolder.value?.id ?: -1 )
 

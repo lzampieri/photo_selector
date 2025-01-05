@@ -22,10 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.example.photoselector.R
 import com.example.photoselector.data.Image
 import com.example.photoselector.ui.components.AlertDialogComponent
 import com.example.photoselector.ui.models.AppViewModel
@@ -34,13 +36,14 @@ import java.net.URLDecoder
 
 
 @Composable
-fun FolderScreen(viewModel: AppViewModel, folderId: Int, onBackClick: () -> Unit ) {
+fun FolderScreen(viewModel: AppViewModel, folderId: Int, startScan: (Int) -> Unit, onBackClick: () -> Unit ) {
     viewModel.selectFolder( folderId )
     val loading by viewModel.loading.collectAsState()
 
     Column( Modifiers.mainColumn() ) {
         FolderTitle( viewModel, onBackClick )
         DeleteFolder( viewModel, onBackClick )
+        StartScan( viewModel, startScan )
         ImagesList( viewModel )
     }
 }
@@ -81,6 +84,18 @@ fun DeleteFolder(viewModel: AppViewModel, onBackClick: () -> Unit ) {
             icon = Icons.Outlined.Delete
         )
     }
+}
+
+@Composable
+fun StartScan(viewModel: AppViewModel, startScan: (Int) -> Unit ) {
+    val folder by viewModel.selectedFolder.collectAsState()
+
+    if( folder != null )
+        ListItem(
+            headlineContent = { Text(text = "Avvia scansione") },
+            leadingContent = { Icon( painter = painterResource( R.drawable.outline_play_circle_outline_24 ), "" ) },
+            modifier = Modifier.clickable(onClick = { startScan( folder!!.id ) })
+        )
 }
 
 @Composable

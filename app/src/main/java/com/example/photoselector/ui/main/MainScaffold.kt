@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.example.photoselector.ui.main.selector.SelectorScaffold
 import com.example.photoselector.ui.main.settings.SettingsScaffold
 import com.example.photoselector.ui.models.AppViewModel
 import kotlinx.serialization.Serializable
@@ -35,6 +36,9 @@ object MainDestinations {
 
     @Serializable
     data class FolderContent(val folderId: Int)
+
+    @Serializable
+    data class Selector(val folderId: Int)
 
     @Serializable
     object Settings
@@ -76,6 +80,15 @@ fun Navigator(
                 ) { backStackEntry ->
                     val destination: MainDestinations.FolderContent = backStackEntry.toRoute()
                     FolderScreen(
+                        viewModel,
+                        destination.folderId,
+                        startScan = { folderId -> navController.navigate( MainDestinations.Selector( folderId ) ) },
+                        onBackClick = { navController.popBackStack() })
+                }
+                composable<MainDestinations.Selector>(
+                ) { backStackEntry ->
+                    val destination: MainDestinations.FolderContent = backStackEntry.toRoute()
+                    SelectorScaffold(
                         viewModel,
                         destination.folderId,
                         onBackClick = { navController.popBackStack() })

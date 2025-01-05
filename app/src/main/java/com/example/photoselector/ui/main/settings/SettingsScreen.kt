@@ -21,15 +21,14 @@ import androidx.compose.ui.res.painterResource
 import com.example.photoselector.R
 import com.example.photoselector.data.Action
 import com.example.photoselector.ui.components.AlertDialogComponent
-import com.example.photoselector.ui.models.ActionsViewModel
+import com.example.photoselector.ui.models.SettingsViewModel
 import com.example.photoselector.ui.models.ActionIcons
-import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.theme.Modifiers
 import java.net.URLDecoder
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SettingsScreen(viewModel: ActionsViewModel, onNewAction: () -> Unit ) {
+fun SettingsScreen(viewModel: SettingsViewModel, onNewAction: () -> Unit ) {
     val actionsList by viewModel.actions.collectAsState(listOf<Action>())
     Scaffold( floatingActionButton = {
         FloatingActionButton( onClick = onNewAction ) {
@@ -55,7 +54,7 @@ fun computeFolderName( path: String? ): String {
 }
 
 @Composable
-fun ActionBanner(action: Action, viewModel: ActionsViewModel) {
+fun ActionBanner(action: Action, viewModel: SettingsViewModel) {
     ListItem(
         headlineContent = { Text( text = action.name ) },
         supportingContent = { Column {
@@ -67,7 +66,7 @@ fun ActionBanner(action: Action, viewModel: ActionsViewModel) {
 }
 
 @Composable
-fun DeleteButton( action: Action, viewModel: ActionsViewModel ) {
+fun DeleteButton( action: Action, viewModel: SettingsViewModel ) {
     var ruSure by remember { mutableStateOf( false ) }
 
     IconButton( onClick = { ruSure = true } ) { Icon( Icons.Outlined.Delete , "" ) }

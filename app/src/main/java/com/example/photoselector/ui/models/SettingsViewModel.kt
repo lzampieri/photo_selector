@@ -4,14 +4,10 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.photoselector.PhotoselectorApplication
 import com.example.photoselector.R
 import com.example.photoselector.data.Action
-import com.example.photoselector.data.AppContainer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +28,7 @@ val ActionIcons = arrayOf(
     R.drawable.outline_print_24
 )
 
-class ActionsViewModel (
+class SettingsViewModel (
     val app: Application,
 ) : AndroidViewModel(app) {
 

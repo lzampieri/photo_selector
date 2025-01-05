@@ -24,13 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.photoselector.R
-import com.example.photoselector.ui.models.ActionsViewModel
+import com.example.photoselector.ui.models.SettingsViewModel
 import com.example.photoselector.ui.models.ActionIcons
 import com.example.photoselector.ui.theme.Modifiers
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun ActionCreatorScreen(viewModel: ActionsViewModel, navBack: () -> Unit ) {
+fun ActionCreatorScreen(viewModel: SettingsViewModel, navBack: () -> Unit ) {
     val name by viewModel.name.collectAsState()
     val copy by viewModel.copy.collectAsState()
     val path by viewModel.path.collectAsState()
@@ -89,27 +89,3 @@ fun ActionCreatorScreen(viewModel: ActionsViewModel, navBack: () -> Unit ) {
         }
     }
 }
-
-//@Composable
-//
-//private fun computeFolderName( path: String? ): String {
-//    if( path == null )
-//        return ""
-//    return " - " + URLDecoder.decode( path.substring( maxOf (
-//        path.indexOf( "%2F", path.indexOf("com.", path.indexOf("com.") + 1 ) + 1 ) + 3,
-//        path.indexOf("tree/primary") + 13,
-//        0
-//    ) ), "UTF-8" )
-//}
-
-//@Composable
-//private fun ActionBanner(action: Action, viewModel: AppViewModel ) {
-//    ListItem(
-//        headlineContent = { Text( text = action.name ) },
-//        supportingContent = { Column {
-//            Text( text = action.type + computeFolderName( action.path ) )
-//        } },
-//        leadingContent = { Icon( painter = painterResource( action.icon ), "" ) },
-//        trailingContent = { IconButton( onClick = {} ) { Icon( Icons.Outlined.Delete , "" ) } },
-//    )
-//}

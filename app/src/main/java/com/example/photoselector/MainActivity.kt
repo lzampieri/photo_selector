@@ -2,19 +2,15 @@ package com.example.photoselector
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.photoselector.ui.theme.PhotoSelectorTheme
 import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.main.Navigator
-import com.example.photoselector.ui.main.settings.SettingsScaffold
-import com.example.photoselector.ui.models.ActionsViewModel
+import com.example.photoselector.ui.models.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -31,7 +27,7 @@ class MainActivity : ComponentActivity() {
             uri: Uri? ->
         if( uri != null ) {
             //ViewModelProvider( SettingsScaffold)
-            val viewModel: ActionsViewModel by viewModels()
+            val viewModel: SettingsViewModel by viewModels()
             viewModel.setFolder( uri )
         }
     }

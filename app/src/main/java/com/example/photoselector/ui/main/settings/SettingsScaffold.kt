@@ -17,16 +17,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.photoselector.ui.models.ActionsViewModel
+import com.example.photoselector.ui.models.SettingsViewModel
 import com.example.photoselector.ui.models.AppViewModel
 import kotlinx.serialization.Serializable
 
@@ -43,7 +39,8 @@ object SettingsDestination {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScaffold( upperNavController: NavHostController, appViewModel: AppViewModel ) {
-    val actionsViewModel: ActionsViewModel = viewModel<ActionsViewModel>( viewModelStoreOwner = appViewModel.appContainer.activity!! )
+    val settingsViewModel: SettingsViewModel = viewModel<SettingsViewModel>( viewModelStoreOwner = appViewModel.appContainer.activity!! )
+    val navController: NavHostController = rememberNavController() // TODO forse questo va spostato nel viewmodel
 
     Scaffold(
         topBar = { TopAppBar(
@@ -68,7 +65,7 @@ fun SettingsScaffold( upperNavController: NavHostController, appViewModel: AppVi
                 startDestination = SettingsDestination.AllSettings,
                 ) {
                 composable<SettingsDestination.AllSettings> {
-                    SettingsScreen( actionsViewModel ) { navController.navigate(SettingsDestination.ActionCreator) }
+                    SettingsScreen( settingsViewModel ) { navController.navigate(SettingsDestination.ActionCreator) }
                 }
                 composable<SettingsDestination.ActionCreator>(
                     enterTransition = {
@@ -84,7 +81,9 @@ fun SettingsScaffold( upperNavController: NavHostController, appViewModel: AppVi
                         )
                     }
                 ) {
-                    ActionCreatorScreen( actionsViewModel ) { navController.navigate(SettingsDestination.AllSettings) }
+                    ActionCreatorScreen( settingsViewModel ) {
+                        navController.popBackStack(SettingsDestination.AllSettings, false)
+                    }
                 }
             }
         }

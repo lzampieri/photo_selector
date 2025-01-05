@@ -1,10 +1,13 @@
 package com.example.photoselector.ui.models
 
+import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.photoselector.PhotoselectorApplication
 import com.example.photoselector.data.Action
 import com.example.photoselector.data.AppContainer
 import com.example.photoselector.data.Folder
@@ -18,8 +21,10 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class AppViewModel (
-    public val appContainer: AppContainer,
-) : ViewModel() {
+    val app: Application,
+) : AndroidViewModel(app) {
+
+    val appContainer = (app as PhotoselectorApplication).container
 
     val folders : Flow<List<FolderAndCounts>> = appContainer.repository.getAllFolders()
     val selectedFolder: MutableStateFlow<Folder?> = MutableStateFlow( null )
@@ -28,9 +33,6 @@ class AppViewModel (
 
     val images: Flow<List<Image>>
         get() = this.appContainer.repository.getImagesFromFolder( selectedFolder.value?.id ?: -1 )
-
-    val actions : Flow<List<Action>> = appContainer.repository.getAllActions()
-    val actionsViewModel: ActionsViewModel = ActionsViewModel( appContainer )
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

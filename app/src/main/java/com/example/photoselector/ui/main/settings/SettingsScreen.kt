@@ -29,7 +29,7 @@ import java.net.URLDecoder
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SettingsScreen(viewModel: AppViewModel, onNewAction: () -> Unit ) {
+fun SettingsScreen(viewModel: ActionsViewModel, onNewAction: () -> Unit ) {
     val actionsList by viewModel.actions.collectAsState(listOf<Action>())
     Scaffold( floatingActionButton = {
         FloatingActionButton( onClick = onNewAction ) {
@@ -55,14 +55,14 @@ fun computeFolderName( path: String? ): String {
 }
 
 @Composable
-fun ActionBanner(action: Action, viewModel: AppViewModel) {
+fun ActionBanner(action: Action, viewModel: ActionsViewModel) {
     ListItem(
         headlineContent = { Text( text = action.name ) },
         supportingContent = { Column {
             Text( text = ( if( action.copy ) "Copia" else "Sposta" ) + computeFolderName( action.path ))
         } },
         leadingContent = { Icon( painter = painterResource( if( action.icon in ActionIcons ) action.icon else R.drawable.outline_question_mark_24 ), "" ) },
-        trailingContent = { DeleteButton( action, viewModel.actionsViewModel ) },
+        trailingContent = { DeleteButton( action, viewModel ) },
     )
 }
 

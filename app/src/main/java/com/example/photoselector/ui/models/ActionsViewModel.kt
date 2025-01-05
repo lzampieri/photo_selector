@@ -1,13 +1,19 @@
 package com.example.photoselector.ui.models
 
+import android.app.Application
 import android.content.Intent
 import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.photoselector.PhotoselectorApplication
 import com.example.photoselector.R
 import com.example.photoselector.data.Action
 import com.example.photoselector.data.AppContainer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -27,8 +33,12 @@ val ActionIcons = arrayOf(
 )
 
 class ActionsViewModel (
-    public val appContainer: AppContainer,
-) : ViewModel() {
+    val app: Application,
+) : AndroidViewModel(app) {
+
+    val appContainer = (app as PhotoselectorApplication).container
+
+    val actions : Flow<List<Action>> = appContainer.repository.getAllActions()
 
     val name = MutableStateFlow("")
     val copy = MutableStateFlow(false)

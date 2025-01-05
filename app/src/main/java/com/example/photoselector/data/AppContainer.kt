@@ -3,8 +3,10 @@ package com.example.photoselector.data
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
+import com.example.photoselector.MainActivity
 
 interface AppContainer {
+    var activity: MainActivity?
     val repository: RepositoryInterface
     var pickFolderIntentLauncher: ActivityResultLauncher<Uri?>?
     var actionFolderIntentLauncher: ActivityResultLauncher<Uri?>?
@@ -22,4 +24,5 @@ class ActualAppContainer(private val context: Context) : AppContainer {
     override var pickFolderIntentLauncher: ActivityResultLauncher<Uri?>? = null
     override var actionFolderIntentLauncher: ActivityResultLauncher<Uri?>? = null
     override val appContext: Context = context
+    override var activity: MainActivity? = null
 }

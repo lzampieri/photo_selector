@@ -17,10 +17,16 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.photoselector.ui.models.ActionsViewModel
 import com.example.photoselector.ui.models.AppViewModel
 import kotlinx.serialization.Serializable
 
@@ -36,8 +42,8 @@ object SettingsDestination {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScaffold( upperNavController: NavHostController, viewModel: AppViewModel ) {
-    val navController: NavHostController = rememberNavController()
+fun SettingsScaffold( upperNavController: NavHostController, appViewModel: AppViewModel ) {
+    val actionsViewModel: ActionsViewModel = viewModel<ActionsViewModel>( viewModelStoreOwner = appViewModel.appContainer.activity!! )
 
     Scaffold(
         topBar = { TopAppBar(
@@ -62,7 +68,7 @@ fun SettingsScaffold( upperNavController: NavHostController, viewModel: AppViewM
                 startDestination = SettingsDestination.AllSettings,
                 ) {
                 composable<SettingsDestination.AllSettings> {
-                    SettingsScreen( viewModel ) { navController.navigate(SettingsDestination.ActionCreator) }
+                    SettingsScreen( actionsViewModel ) { navController.navigate(SettingsDestination.ActionCreator) }
                 }
                 composable<SettingsDestination.ActionCreator>(
                     enterTransition = {
@@ -78,7 +84,7 @@ fun SettingsScaffold( upperNavController: NavHostController, viewModel: AppViewM
                         )
                     }
                 ) {
-                    ActionCreatorScreen( viewModel.actionsViewModel ) { navController.navigate(SettingsDestination.AllSettings) }
+                    ActionCreatorScreen( actionsViewModel ) { navController.navigate(SettingsDestination.AllSettings) }
                 }
             }
         }

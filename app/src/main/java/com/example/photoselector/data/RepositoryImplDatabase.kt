@@ -20,6 +20,10 @@ class RepositoryImplDatabase(
         return imageDao.getImagesFromFolder( id )
     }
 
+    override fun countImagesFromFolder(id: Int): Flow<Int> {
+        return imageDao.countImagesFromFolder( id )
+    }
+
     override suspend fun deleteFolder(folder: Folder): Unit {
         imageDao.deleteByFolder( folder.id )
         folderDao.delete( folder )
@@ -47,7 +51,7 @@ class RepositoryImplDatabase(
         if( (imageDao.checkIfExists( path )) )
             return false;
 
-        return imageDao.insert( Image( folderId = folderId, path = path, name = documentFile.name ?: "Unnamed", action = "" ) ) > 0
+        return imageDao.insert( Image( folderId = folderId, path = path, name = documentFile.name ?: "Unnamed", actionId = null ) ) > 0
     }
 
     override fun getAllActions(): Flow<List<Action>> = actionDao.getAllActions()

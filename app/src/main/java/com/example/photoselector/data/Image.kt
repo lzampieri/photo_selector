@@ -13,6 +13,10 @@ import androidx.room.PrimaryKey
         entity = Folder::class,
         parentColumns = ["id"],
         childColumns = ["folder_id"]
+    ),ForeignKey(
+        entity = Action::class,
+        parentColumns = ["id"],
+        childColumns = ["action_id"]
     )],
     indices = [
         Index("folder_id")
@@ -22,5 +26,5 @@ data class Image(
     @ColumnInfo(name = "folder_id") val folderId: Int,
     val path: String,
     val name: String,
-    val action: String?
+    @ColumnInfo(name = "action_id") val actionId: Int?
 )

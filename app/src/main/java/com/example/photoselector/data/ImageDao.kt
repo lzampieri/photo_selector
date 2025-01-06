@@ -27,8 +27,11 @@ interface ImageDao {
     @Query("SELECT * from images")
     fun getAllImages(): Flow<List<Image>>
 
-    @Query("SELECT * from images WHERE folder_id = :folderId")
+    @Query("SELECT * from images WHERE folder_id = :folderId" )
     fun getImagesFromFolder( folderId: Int ): Flow<List<Image>>
+
+    @Query("SELECT COUNT(*) from images WHERE folder_id = :folderId")
+    fun countImagesFromFolder( folderId: Int ): Flow<Int>
 
     @Query("SELECT EXISTS(SELECT * FROM images WHERE path = :path)")
     fun checkIfExists( path: String ): Boolean

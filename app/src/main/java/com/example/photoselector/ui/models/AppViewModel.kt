@@ -13,6 +13,7 @@ import com.example.photoselector.data.AppContainer
 import com.example.photoselector.data.Folder
 import com.example.photoselector.data.FolderAndCounts
 import com.example.photoselector.data.Image
+import com.example.photoselector.data.ImageAndAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,8 +32,8 @@ class AppViewModel (
     val loading = MutableStateFlow( 0 )
     val imagesDbLoading = MutableStateFlow( 0 )
 
-    val images: Flow<List<Image>>
-        get() = this.appContainer.repository.getImagesFromFolder( selectedFolder.value?.id ?: -1 )
+    val images: Flow<List<ImageAndAction>>
+        get() = this.appContainer.repository.getImagesAndActionsFromFolder( selectedFolder.value?.id ?: -1 )
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

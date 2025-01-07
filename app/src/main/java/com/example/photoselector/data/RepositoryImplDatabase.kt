@@ -20,8 +20,8 @@ class RepositoryImplDatabase(
         return imageDao.getImagesFromFolder( id )
     }
 
-    override fun countImagesFromFolder(id: Int): Flow<Int> {
-        return imageDao.countImagesFromFolder( id )
+    override fun getImagesAndActionsFromFolder(id: Int): Flow<List<ImageAndAction>> {
+        return imageDao.getImagesAndActionsFromFolder( id )
     }
 
     override suspend fun deleteFolder(folder: Folder): Unit {
@@ -54,17 +54,19 @@ class RepositoryImplDatabase(
         return imageDao.insert( Image( folderId = folderId, path = path, name = documentFile.name ?: "Unnamed", actionId = null ) ) > 0
     }
 
+    override suspend fun updateImage(image: Image): Unit = imageDao.update( image )
+
     override fun getAllActions(): Flow<List<Action>> = actionDao.getAllActions()
 
-    override suspend fun addAction(name: String, copy: Boolean, icon: Int, path: String): Long {
-        return actionDao.insert( Action( name = name, copy = copy, icon = icon, path = path, hidden = false ) )
+    override suspend fun addAction(name: String, type: String, icon: Int, path: String?): Long {
+        return actionDao.insert( Action( name = name, type = type, icon = icon, path = path, hidden = false ) )
     }
 
     override suspend fun hideAction(action: Action) {
         actionDao.update( Action(
             id = action.id,
             name = action.name,
-            copy = action.copy,
+            type = action.type,
             path = action.path,
             icon = action.icon,
             hidden = true

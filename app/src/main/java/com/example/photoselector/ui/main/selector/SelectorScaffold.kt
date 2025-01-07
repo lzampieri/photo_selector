@@ -51,6 +51,7 @@ import com.example.photoselector.R
 import com.example.photoselector.data.Action
 import com.example.photoselector.data.FolderAndCounts
 import com.example.photoselector.data.Image
+import com.example.photoselector.data.ImageAndAction
 import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.models.SelectorViewModel
 
@@ -84,16 +85,16 @@ fun SelectorScaffold( viewModel: AppViewModel, folderId: Int, onBackClick: () ->
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SelectorChoices( selectorViewModel: SelectorViewModel ) {
-    val actionsList by selectorViewModel.actions.collectAsState(listOf<Action>())
+fun SelectorChoices(selectorViewModel: SelectorViewModel ) {
+    val actions by selectorViewModel.actions.collectAsState(listOf<Action>())
 
     FlowRow( horizontalArrangement = Arrangement.Center, modifier =  Modifier.fillMaxWidth() ) {
         OutlinedIconButton ( onClick = { selectorViewModel.swipe( -1 ) }, enabled = selectorViewModel.canSwipe( -1 )
         ) {
             Icon( painter = painterResource( R.drawable.outline_chevron_left_24 ), "" )
         }
-        actionsList.forEach { act ->
-            OutlinedIconButton ( onClick = {}
+        actions.forEach { act ->
+            OutlinedIconButton ( onClick = { selectorViewModel.saveAction( act.id ) }
             ) {
                 Icon( painter = painterResource( act.icon ), "" )
             }
@@ -118,28 +119,23 @@ fun SelectorTop( onBackClick: () -> Unit ) {
 
 @Composable
 fun SelectorImageScroller( selectorViewModel: SelectorViewModel ) {
-
-    val images by selectorViewModel.images.collectAsState(listOf<Image>())
-    val actionsList by selectorViewModel.actions.collectAsState(listOf<Action>())
+    val images by selectorViewModel.images.collectAsState(listOf<ImageAndAction>())
 
     HorizontalPager(state = selectorViewModel.pagerState, modifier = Modifier.fillMaxSize()) { page ->
         if( page < images.count() )
             Box( Modifier.fillMaxSize() ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data( images[ page ].path )
+                        .data( images[ page ].image.path )
                         .crossfade(true)
                         .build(),
-                    contentDescription = images[ page ].name,
+                    contentDescription = images[ page ].image.name,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
                 )
-                if( images[ page ].actionId != null ) {
-                    actionsList.forEach{ act ->
-                        if( images[ page ].actionId == act.id )
-                            FilledIconButton( enabled = false, modifier = Modifier.align( Alignment.TopCenter ), onClick = {} ) {
-                                Icon( painter = painterResource( act.icon ), "" )
-                            }
+                if( images[ page ].action != null ) {
+                    FilledIconButton( enabled = false, modifier = Modifier.align( Alignment.TopCenter ), onClick = {} ) {
+                        Icon( painter = painterResource( images[ page ].action!!.icon ), "" )
                     }
                 }
             }

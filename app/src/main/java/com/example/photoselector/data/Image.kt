@@ -26,5 +26,5 @@ data class Image(
     @ColumnInfo(name = "folder_id") val folderId: Int,
     val path: String,
     val name: String,
-    @ColumnInfo(name = "action_id") val actionId: Int?
+    @ColumnInfo(name = "action_id") var actionId: Int?
 )

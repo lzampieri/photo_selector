@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
 data class Action(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
-    val copy: Boolean,
+    val type: String,
     val icon: Int,
     val path: String?,
     val hidden: Boolean

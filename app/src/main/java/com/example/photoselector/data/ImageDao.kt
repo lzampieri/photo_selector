@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.example.photoselector.data.Folder
 import com.example.photoselector.data.Image
@@ -30,8 +31,9 @@ interface ImageDao {
     @Query("SELECT * from images WHERE folder_id = :folderId" )
     fun getImagesFromFolder( folderId: Int ): Flow<List<Image>>
 
-    @Query("SELECT COUNT(*) from images WHERE folder_id = :folderId")
-    fun countImagesFromFolder( folderId: Int ): Flow<Int>
+    @Transaction
+    @Query("SELECT * from images WHERE folder_id = :folderId")
+    fun getImagesAndActionsFromFolder( folderId: Int ): Flow<List<ImageAndAction>>
 
     @Query("SELECT EXISTS(SELECT * FROM images WHERE path = :path)")
     fun checkIfExists( path: String ): Boolean

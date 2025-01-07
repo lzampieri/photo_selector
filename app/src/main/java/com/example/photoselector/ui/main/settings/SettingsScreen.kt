@@ -58,11 +58,16 @@ fun ActionBanner(action: Action, viewModel: SettingsViewModel) {
     ListItem(
         headlineContent = { Text( text = action.name ) },
         supportingContent = { Column {
-            Text( text = ( if( action.copy ) "Copia" else "Sposta" ) + computeFolderName( action.path ))
+            Text( text = parseAction( action ))
         } },
         leadingContent = { Icon( painter = painterResource( if( action.icon in ActionIcons ) action.icon else R.drawable.outline_question_mark_24 ), "" ) },
         trailingContent = { DeleteButton( action, viewModel ) },
     )
+}
+
+fun parseAction( action: Action ): String {
+    if( action.type == "skip" ) return "Salta"
+    return ( if( action.type == "copy" ) "Copia" else "Sposta" ) + computeFolderName( action.path )
 }
 
 @Composable

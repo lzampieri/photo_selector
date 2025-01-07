@@ -25,7 +25,8 @@ val ActionIcons = arrayOf(
     R.drawable.outline_fireplace_24,
     R.drawable.outline_folder_open_24,
     R.drawable.outline_next_week_24,
-    R.drawable.outline_print_24
+    R.drawable.outline_print_24,
+    R.drawable.outline_skip_next_24
 )
 
 class SettingsViewModel (
@@ -37,7 +38,7 @@ class SettingsViewModel (
     val actions : Flow<List<Action>> = appContainer.repository.getAllActions()
 
     val name = MutableStateFlow("")
-    val copy = MutableStateFlow(false)
+    val type = MutableStateFlow("skip")
     val icon = MutableStateFlow(0)
     val path = MutableStateFlow("")
 
@@ -50,16 +51,16 @@ class SettingsViewModel (
 
     fun save() {
         viewModelScope.launch(Dispatchers.IO) {
-            addActionAct( name.value, copy.value, icon.value, path.value )
+            addActionAct( name.value, type.value, icon.value, path.value )
             name.value = ""
-            copy.value = false
+            type.value = "skip"
             icon.value = 0
             path.value = ""
         }
     }
 
-    private suspend fun addActionAct( name: String, copy: Boolean, icon: Int, path: String ) {
-        appContainer.repository.addAction( name, copy, icon, path )
+    private suspend fun addActionAct( name: String, type: String, icon: Int, path: String? ) {
+        appContainer.repository.addAction( name, type, icon, path )
     }
 
     fun deleteAction( action: Action ) {

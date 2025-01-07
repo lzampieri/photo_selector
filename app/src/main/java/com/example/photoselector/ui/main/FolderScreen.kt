@@ -1,7 +1,9 @@
 package com.example.photoselector.ui.main
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +33,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.photoselector.R
 import com.example.photoselector.data.Image
+import com.example.photoselector.data.ImageAndAction
 import com.example.photoselector.ui.components.AlertDialogComponent
 import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.theme.Modifiers
@@ -100,25 +105,32 @@ fun StartScan(viewModel: AppViewModel, startScan: (Int) -> Unit ) {
 
 @Composable
 fun ImagesList( viewModel: AppViewModel) {
-    val imagesList by viewModel.images.collectAsState(listOf<Image>())
+    val imagesList by viewModel.images.collectAsState(listOf<ImageAndAction>())
     LazyColumn ( ) {
         items( imagesList ) { k -> ImageBanner( k ) }
     }
 }
 
 @Composable
-fun ImageBanner( image: Image ) {
+fun ImageBanner( iaa: ImageAndAction ) {
     ListItem(
-        headlineContent = { Text( text = image.name ) },
-        leadingContent = { AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data( image.path )
-                .crossfade(true)
-                .build(),
-            contentDescription = image.name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.height( 70.dp ).width( 70.dp )
-        )
+        headlineContent = { Text( text = iaa.image.name ) },
+        leadingContent = {
+            Box( Modifier.width( 70.dp ).height( 70.dp ) ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(iaa.image.path)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = iaa.image.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().align( Alignment.Center )
+                )
+                if( iaa.action != null )
+                    FilledIconButton( modifier = Modifier.align( Alignment.Center ), onClick = {} ) {
+                        Icon( painter = painterResource( iaa.action.icon ), "" )
+                    }
+            }
         },
     )
 

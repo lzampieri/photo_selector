@@ -32,7 +32,7 @@ import com.example.photoselector.ui.theme.Modifiers
 @Composable
 fun ActionCreatorScreen(viewModel: SettingsViewModel, navBack: () -> Unit ) {
     val name by viewModel.name.collectAsState()
-    val copy by viewModel.copy.collectAsState()
+    val type by viewModel.type.collectAsState()
     val path by viewModel.path.collectAsState()
     val icon by viewModel.icon.collectAsState()
     Column( modifier = Modifiers.mainColumn(), verticalArrangement = Arrangement.spacedBy( 30.dp ), horizontalAlignment = Alignment.CenterHorizontally ) {
@@ -44,18 +44,25 @@ fun ActionCreatorScreen(viewModel: SettingsViewModel, navBack: () -> Unit ) {
         )
         SingleChoiceSegmentedButtonRow( modifier = Modifier.fillMaxWidth() ) {
             SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                onClick = { viewModel.copy.value = false },
-                selected = !copy
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+                onClick = { viewModel.type.value = "move" },
+                selected = ( type == "move" )
             ) {
                 Text("Sposta")
             }
             SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                onClick = { viewModel.copy.value = true },
-                selected = copy
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+                onClick = { viewModel.type.value = "copy" },
+                selected = ( type == "copy" )
             ) {
                 Text("Copia")
+            }
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                onClick = { viewModel.type.value = "skip" },
+                selected = ( type == "skip" )
+            ) {
+                Text("Salta")
             }
         }
         FlowRow( horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth() ) {
@@ -72,9 +79,11 @@ fun ActionCreatorScreen(viewModel: SettingsViewModel, navBack: () -> Unit ) {
             value = path,
             onValueChange = { },
             readOnly = true,
+            enabled = (type != "skip"),
             label = { Text("Cartella") },
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = { OutlinedIconButton(
+                enabled = (type != "skip"),
                 onClick = { viewModel.appContainer.actionFolderIntentLauncher?.launch(null ) }
             )  {
                 Icon( painter = painterResource( R.drawable.outline_create_new_folder_24 ), "Select folder" )
@@ -82,7 +91,7 @@ fun ActionCreatorScreen(viewModel: SettingsViewModel, navBack: () -> Unit ) {
         )
         OutlinedButton (
             onClick = { viewModel.save(); navBack() },
-            enabled = name.isNotEmpty() and path.isNotEmpty() and ( icon > 0 )
+            enabled = name.isNotEmpty() and ( path.isNotEmpty() or ( type == "skip" )) and ( icon > 0 )
         ) {
             Icon( painter = painterResource( R.drawable.outline_save_24 ), "Save", modifier = Modifier.padding( end = 15.dp ) )
             Text("Salva")

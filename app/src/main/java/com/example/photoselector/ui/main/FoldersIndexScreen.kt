@@ -42,8 +42,8 @@ private fun FolderBanner(folder: FolderAndCounts, onFolderSelect: (Int) -> Unit 
         supportingContent = { Column {
             Text( text = URLDecoder.decode( folder.path, "UTF-8" ),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant  )
-            Text( text = folder.imgNoactCount.toString() + " images filtered over " + folder.imgCount.toString() + " images detected." )
-            LinearProgressIndicator( progress = { if( folder.imgCount > 0 ) (folder.imgNoactCount / folder.imgCount + 0.5).toFloat() else 0.toFloat() }, modifier = Modifier.fillMaxWidth() )
+            Text( text = folder.imgActDoneCount.toString() + " images filtered over " + folder.imgCount.toString() + " images detected." )
+            LinearProgressIndicator( progress = { if( folder.imgCount > 0 ) (folder.imgActDoneCount / folder.imgCount).toFloat() else 0.toFloat() }, modifier = Modifier.fillMaxWidth() )
         } },
         leadingContent = { Icon( painter = painterResource( R.drawable.outline_folder_open_24 ), "" ) },
         trailingContent = { Icon( Icons.AutoMirrored.Outlined.KeyboardArrowRight, "" )},

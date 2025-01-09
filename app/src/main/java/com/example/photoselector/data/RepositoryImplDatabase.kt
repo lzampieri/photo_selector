@@ -12,7 +12,7 @@ class RepositoryImplDatabase(
 
     override fun getAllFolders(): Flow<List<FolderAndCounts>> = folderDao.getAllFolders()
 
-    override suspend fun getFolder(id: Int): Folder? {
+    override suspend fun getFolder(id: Int): FolderAndCounts? {
         return folderDao.getFolder( id )
     }
 
@@ -27,6 +27,11 @@ class RepositoryImplDatabase(
     override suspend fun deleteFolder(folder: Folder): Unit {
         imageDao.deleteByFolder( folder.id )
         folderDao.delete( folder )
+    }
+
+    override suspend fun deleteFolder(folder: FolderAndCounts): Unit {
+        imageDao.deleteByFolder( folder.id )
+        folderDao.delete( folderDao.getFolderWithoutCounts( folder.id ) )
     }
 
     override suspend fun addFolderIfNotExists( path: String ): Boolean {
@@ -55,6 +60,8 @@ class RepositoryImplDatabase(
     }
 
     override suspend fun updateImage(image: Image): Unit = imageDao.update( image )
+
+    override suspend fun deleteImage(image: Image): Unit = imageDao.delete( image )
 
     override fun getAllActions(): Flow<List<Action>> = actionDao.getAllActions()
 

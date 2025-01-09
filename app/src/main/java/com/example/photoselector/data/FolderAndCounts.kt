@@ -9,5 +9,5 @@ data class FolderAndCounts(
     val path: String,
     val name: String,
     @ColumnInfo(name = "img_count") val imgCount: Int,
-    @ColumnInfo(name = "img_noact_count") val imgNoactCount: Int
+    @ColumnInfo(name = "img_actdone_count") val imgActDoneCount: Int
 )

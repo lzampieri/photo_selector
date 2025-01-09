@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database( entities = [ Folder::class, Image::class, Action::class ], version = 10, exportSchema = false)
+@Database( entities = [ Folder::class, Image::class, Action::class ], version = 11, exportSchema = false)
 abstract class TheDatabase : RoomDatabase() {
 
     abstract fun folderDao(): FolderDao

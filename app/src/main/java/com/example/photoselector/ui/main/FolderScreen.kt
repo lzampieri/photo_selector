@@ -32,9 +32,9 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.photoselector.R
-import com.example.photoselector.data.Image
 import com.example.photoselector.data.ImageAndAction
 import com.example.photoselector.ui.components.AlertDialogComponent
+import com.example.photoselector.ui.components.CircledIcon
 import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.theme.Modifiers
 import java.net.URLDecoder
@@ -49,6 +49,7 @@ fun FolderScreen(viewModel: AppViewModel, folderId: Int, startScan: (Int) -> Uni
         FolderTitle( viewModel, onBackClick )
         DeleteFolder( viewModel, onBackClick )
         StartScan( viewModel, startScan )
+        StartExecution( viewModel )
         ImagesList( viewModel )
     }
 }
@@ -92,6 +93,21 @@ fun DeleteFolder(viewModel: AppViewModel, onBackClick: () -> Unit ) {
 }
 
 @Composable
+fun StartExecution(viewModel: AppViewModel ) {
+    val images by viewModel.images.collectAsState( listOf<ImageAndAction>() )
+    if( images.isEmpty() )
+        return
+    val count = images.fold( 0 ) { sum, image -> sum + ( if( !image.image.actionDone and (image.action != null) ) 1 else 0 ) }
+
+    if( count > 0 )
+        ListItem(
+            headlineContent = { Text(text = "Esegui le $count azioni in coda") },
+            leadingContent = { Icon( painter = painterResource( R.drawable.outline_skip_next_24 ), "" ) },
+            modifier = Modifier.clickable(onClick = { viewModel.runActions( ) })
+        )
+}
+
+@Composable
 fun StartScan(viewModel: AppViewModel, startScan: (Int) -> Unit ) {
     val folder by viewModel.selectedFolder.collectAsState()
 
@@ -116,7 +132,10 @@ fun ImageBanner( iaa: ImageAndAction ) {
     ListItem(
         headlineContent = { Text( text = iaa.image.name ) },
         leadingContent = {
-            Box( Modifier.width( 70.dp ).height( 70.dp ) ) {
+            Box(
+                Modifier
+                    .width(70.dp)
+                    .height(70.dp) ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(iaa.image.path)
@@ -124,15 +143,20 @@ fun ImageBanner( iaa: ImageAndAction ) {
                         .build(),
                     contentDescription = iaa.image.name,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().align( Alignment.Center )
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(Alignment.Center)
                 )
-                if( iaa.action != null )
-                    FilledIconButton( modifier = Modifier.align( Alignment.Center ), onClick = {} ) {
-                        Icon( painter = painterResource( iaa.action.icon ), "" )
-                    }
+                if( iaa.image.actionId != null )
+                    CircledIcon( getActionIcon( iaa ), iaa.image.actionDone, modifier = Modifier.align( Alignment.Center ) )
             }
         },
     )
+}
 
+fun getActionIcon( iia: ImageAndAction ): Int {
+    if( iia.action == null )
+        return R.drawable.outline_question_mark_24
+    return iia.action.icon
 }
 

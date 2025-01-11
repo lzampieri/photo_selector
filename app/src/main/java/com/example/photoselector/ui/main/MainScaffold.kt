@@ -23,6 +23,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.example.photoselector.ui.main.dirselection.FoldersIndexScreen
+import com.example.photoselector.ui.main.selector.FolderScreen
 import com.example.photoselector.ui.main.selector.SelectorScaffold
 import com.example.photoselector.ui.main.settings.SettingsScaffold
 import com.example.photoselector.ui.models.AppViewModel

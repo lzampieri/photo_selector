@@ -1,4 +1,4 @@
-package com.example.photoselector.ui.main
+package com.example.photoselector.ui.main.dirselection
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -43,7 +43,7 @@ private fun FolderBanner(folder: FolderAndCounts, onFolderSelect: (Int) -> Unit 
             Text( text = URLDecoder.decode( folder.path, "UTF-8" ),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant  )
             Text( text = folder.imgActDoneCount.toString() + " images filtered over " + folder.imgCount.toString() + " images detected." )
-            LinearProgressIndicator( progress = { if( folder.imgCount > 0 ) (folder.imgActDoneCount / folder.imgCount).toFloat() else 0.toFloat() }, modifier = Modifier.fillMaxWidth() )
+            LinearProgressIndicator( progress = { if( folder.imgCount > 0 ) folder.imgActDoneCount.toFloat() / folder.imgCount else 0.toFloat() }, modifier = Modifier.fillMaxWidth() )
         } },
         leadingContent = { Icon( painter = painterResource( R.drawable.outline_folder_open_24 ), "" ) },
         trailingContent = { Icon( Icons.AutoMirrored.Outlined.KeyboardArrowRight, "" )},

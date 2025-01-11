@@ -52,6 +52,7 @@ import com.example.photoselector.data.Action
 import com.example.photoselector.data.FolderAndCounts
 import com.example.photoselector.data.Image
 import com.example.photoselector.data.ImageAndAction
+import com.example.photoselector.ui.components.CircledIcon
 import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.models.SelectorViewModel
 
@@ -63,8 +64,7 @@ fun SelectorScaffold( viewModel: AppViewModel, folderId: Int, onBackClick: () ->
 
     val loaded by selectorViewModel.loaded.collectAsState()
 
-    Scaffold(
-        ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column( modifier = Modifier
             .padding(innerPadding)
             .fillMaxSize()  ) {
@@ -134,9 +134,7 @@ fun SelectorImageScroller( selectorViewModel: SelectorViewModel ) {
                     modifier = Modifier.fillMaxSize()
                 )
                 if( images[ page ].action != null ) {
-                    FilledIconButton( enabled = false, modifier = Modifier.align( Alignment.TopCenter ), onClick = {} ) {
-                        Icon( painter = painterResource( images[ page ].action!!.icon ), "" )
-                    }
+                    CircledIcon( images[ page ].action!!.icon, active = false, modifier = Modifier.align( Alignment.TopCenter ) )
                 }
             }
         else

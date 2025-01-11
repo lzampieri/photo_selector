@@ -22,12 +22,12 @@ interface FolderDao {
 
     @Query("SELECT * from folders LEFT JOIN" +
             "( SELECT folder_id, Count(*) AS img_count FROM images GROUP BY folder_id ) AS grp_images ON folders.id = grp_images.folder_id  LEFT JOIN" +
-            "( SELECT folder_id, Count(*) AS img_actdone_count FROM images WHERE 'action_done' IS TRUE GROUP BY folder_id ) AS grp_noact_images ON folders.id = grp_noact_images.folder_id")
+            "( SELECT folder_id, Count(*) AS img_actdone_count FROM images WHERE action_done IS TRUE GROUP BY folder_id ) AS grp_actdone_images ON folders.id = grp_actdone_images.folder_id")
     fun getAllFolders(): Flow<List<FolderAndCounts>>
 
     @Query("SELECT * from folders LEFT JOIN" +
             "( SELECT folder_id, Count(*) AS img_count FROM images GROUP BY folder_id ) AS grp_images ON folders.id = grp_images.folder_id  LEFT JOIN" +
-            "( SELECT folder_id, Count(*) AS img_actdone_count FROM images GROUP BY folder_id ) AS grp_noact_images ON folders.id = grp_noact_images.folder_id " +
+            "( SELECT folder_id, Count(*) AS img_actdone_count FROM images WHERE action_done IS TRUE GROUP BY folder_id ) AS grp_actdone_images ON folders.id = grp_actdone_images.folder_id " +
             "WHERE folders.id = :id")
     suspend fun getFolder( id: Int ): FolderAndCounts?
 

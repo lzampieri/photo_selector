@@ -1,38 +1,20 @@
 package com.example.photoselector.ui.main.selector
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
-import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,17 +31,14 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.photoselector.R
 import com.example.photoselector.data.Action
-import com.example.photoselector.data.FolderAndCounts
-import com.example.photoselector.data.Image
 import com.example.photoselector.data.ImageAndAction
 import com.example.photoselector.ui.components.CircledIcon
 import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.models.SelectorViewModel
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SelectorScaffold( viewModel: AppViewModel, folderId: Int, onBackClick: () -> Unit ) {
-    val selectorViewModel: SelectorViewModel = viewModel { SelectorViewModel( folderId, viewModel.app ) }
+fun SelectorScaffold( viewModel: AppViewModel, folderId: Int, startBy: Int = -1, onBackClick: () -> Unit ) {
+    val selectorViewModel: SelectorViewModel = viewModel { SelectorViewModel( folderId, startBy, viewModel.app ) }
     selectorViewModel.corutineScope = rememberCoroutineScope()
 
     val loaded by selectorViewModel.loaded.collectAsState()
@@ -94,12 +73,13 @@ fun SelectorChoices(selectorViewModel: SelectorViewModel ) {
             Icon( painter = painterResource( R.drawable.outline_chevron_left_24 ), "" )
         }
         actions.forEach { act ->
-            OutlinedIconButton ( onClick = { selectorViewModel.saveAction( act.id ) }
+            OutlinedIconButton (
+                onClick = { selectorViewModel.saveAction( act.id ) },
             ) {
                 Icon( painter = painterResource( act.icon ), "" )
             }
         }
-        OutlinedIconButton ( onClick = { selectorViewModel.swipe( +1 ) }, enabled = selectorViewModel.canSwipe( +1 )
+        OutlinedIconButton ( onClick = { selectorViewModel.smartNext() }, enabled = selectorViewModel.canSwipe( +1 )
         ) {
             Icon( painter = painterResource( R.drawable.outline_chevron_right_24 ), "" )
         }

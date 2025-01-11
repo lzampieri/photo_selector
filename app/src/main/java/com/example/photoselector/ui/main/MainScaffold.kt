@@ -40,7 +40,7 @@ object MainDestinations {
     data class FolderContent(val folderId: Int)
 
     @Serializable
-    data class Selector(val folderId: Int)
+    data class Selector(val folderId: Int, val imageId: Int = -1 )
 
     @Serializable
     object Settings
@@ -84,15 +84,16 @@ fun Navigator(
                     FolderScreen(
                         viewModel,
                         destination.folderId,
-                        startScan = { folderId -> navController.navigate( MainDestinations.Selector( folderId ) ) },
+                        startScan = { folderId, imageId -> navController.navigate( MainDestinations.Selector( folderId, imageId ) ) },
                         onBackClick = { navController.popBackStack() })
                 }
                 composable<MainDestinations.Selector>(
                 ) { backStackEntry ->
-                    val destination: MainDestinations.FolderContent = backStackEntry.toRoute()
+                    val destination: MainDestinations.Selector = backStackEntry.toRoute()
                     SelectorScaffold(
                         viewModel,
                         destination.folderId,
+                        destination.imageId,
                         onBackClick = { navController.popBackStack() })
                 }
                 composable<MainDestinations.Settings>(

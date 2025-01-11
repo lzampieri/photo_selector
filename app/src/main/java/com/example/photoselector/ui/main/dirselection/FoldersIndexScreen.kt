@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.example.photoselector.R
 import com.example.photoselector.data.FolderAndCounts
+import com.example.photoselector.ui.main.parseFolderPath
 import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.theme.Modifiers
 import java.net.URLDecoder
@@ -40,7 +41,7 @@ private fun FolderBanner(folder: FolderAndCounts, onFolderSelect: (Int) -> Unit 
     ListItem(
         headlineContent = { Text( text = folder.name ) },
         supportingContent = { Column {
-            Text( text = URLDecoder.decode( folder.path, "UTF-8" ),
+            Text( text = parseFolderPath( folder.path ),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant  )
             Text( text = folder.imgActDoneCount.toString() + " images filtered over " + folder.imgCount.toString() + " images detected." )
             LinearProgressIndicator( progress = { if( folder.imgCount > 0 ) folder.imgActDoneCount.toFloat() / folder.imgCount else 0.toFloat() }, modifier = Modifier.fillMaxWidth() )
@@ -54,6 +55,6 @@ private fun FolderBanner(folder: FolderAndCounts, onFolderSelect: (Int) -> Unit 
 @Composable
 private fun PickFolderButton(onClick: () -> Unit ) {
     Button ( onClick = onClick ) {
-        Text(text = "Pick a random folder")
+        Text(text = "Aggiungi cartella")
     }
 }

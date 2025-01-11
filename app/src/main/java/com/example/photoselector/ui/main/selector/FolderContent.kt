@@ -34,22 +34,22 @@ import com.example.photoselector.R
 import com.example.photoselector.data.ImageAndAction
 import com.example.photoselector.ui.components.AlertDialogComponent
 import com.example.photoselector.ui.components.CircledIcon
+import com.example.photoselector.ui.main.parseFolderPath
+import com.example.photoselector.ui.main.settings.computeFolderName
 import com.example.photoselector.ui.models.AppViewModel
 import com.example.photoselector.ui.theme.Modifiers
 import java.net.URLDecoder
 
 
 @Composable
-fun FolderScreen(viewModel: AppViewModel, folderId: Int, startScan: (Int) -> Unit, onBackClick: () -> Unit ) {
+fun FolderScreen(viewModel: AppViewModel, folderId: Int, startScan: (Int,Int) -> Unit, onBackClick: () -> Unit ) {
     viewModel.selectFolder( folderId )
-    val loading by viewModel.loading.collectAsState()
-
     Column( Modifiers.mainColumn() ) {
         FolderTitle( viewModel, onBackClick )
         DeleteFolder( viewModel, onBackClick )
-        StartScan( viewModel, startScan )
+        StartScan( viewModel, { folderId -> startScan(folderId, -1) } )
         StartExecution( viewModel )
-        ImagesList( viewModel )
+        ImagesList( viewModel, startScan )
     }
 }
 
@@ -59,7 +59,7 @@ fun FolderTitle(viewModel: AppViewModel, onBackClick: () -> Unit  )  {
 
     ListItem(
         headlineContent = { Text( text = folder?.name ?: "" ) },
-        supportingContent = { Text( text = URLDecoder.decode( folder?.path ?: "", "UTF-8" ),
+        supportingContent = { Text( parseFolderPath( folder?.path ?: "" ),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant  ) },
         leadingContent = {
             Icon( Icons.AutoMirrored.Outlined.KeyboardArrowLeft, "",
@@ -119,15 +119,15 @@ fun StartScan(viewModel: AppViewModel, startScan: (Int) -> Unit ) {
 }
 
 @Composable
-fun ImagesList( viewModel: AppViewModel) {
+fun ImagesList( viewModel: AppViewModel, startScanFromImage: ( Int, Int ) -> Unit) {
     val imagesList by viewModel.images.collectAsState(listOf<ImageAndAction>())
     LazyColumn ( ) {
-        items( imagesList ) { k -> ImageBanner( k ) }
+        items( imagesList ) { k -> ImageBanner( k, startScanFromImage ) }
     }
 }
 
 @Composable
-fun ImageBanner( iaa: ImageAndAction ) {
+fun ImageBanner( iaa: ImageAndAction, startScanFromImage: ( Int, Int ) -> Unit ) {
     ListItem(
         headlineContent = { Text( text = iaa.image.name ) },
         leadingContent = {
@@ -150,6 +150,8 @@ fun ImageBanner( iaa: ImageAndAction ) {
                     CircledIcon( getActionIcon( iaa ), iaa.image.actionDone, modifier = Modifier.align( Alignment.Center ) )
             }
         },
+        modifier = Modifier
+            .clickable(onClick = { startScanFromImage(iaa.image.folderId, iaa.image.id,) })
     )
 }
 

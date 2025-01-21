@@ -12,8 +12,13 @@ interface RepositoryInterface {
     suspend fun deleteFolder( folder: FolderAndCounts )
     suspend fun addFolderIfNotExists( path: String ): Boolean
     suspend fun addImageIfNotExists( folderId: Int, documentFile: DocumentFile ): Boolean
+    suspend fun addImageIfNotExists( folderId: Int, path: String, name: String ): Boolean
+    suspend fun addImage( folderId: Int, documentFile: DocumentFile ): Boolean
+    suspend fun addImage( folderId: Int, path: String, name: String ): Boolean
     suspend fun updateImage( image: Image ): Unit
     suspend fun deleteImage( image: Image )
+    suspend fun deleteAllImages()
+    suspend fun deleteUnactionedImages()
     fun getAllActions(): Flow<List<Action>>
     suspend fun addAction( name: String, type: String, icon: Int, path: String? ): Long
     suspend fun hideAction( action: Action )

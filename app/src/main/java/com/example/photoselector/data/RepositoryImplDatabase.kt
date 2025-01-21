@@ -49,19 +49,42 @@ class RepositoryImplDatabase(
         return folderDao.insert( Folder( path = path, name = name ) ) > 0
     }
 
-    override suspend fun addImageIfNotExists(folderId: Int, documentFile: DocumentFile ): Boolean {
+    override suspend fun addImageIfNotExists(folderId: Int, documentFile: DocumentFile): Boolean {
+        return addImageIfNotExists(
+            folderId,
+            documentFile.uri.toString(),
+            documentFile.name ?: "Unnamed"
+        )
+    }
+
+    override suspend fun addImageIfNotExists(folderId: Int, path: String, name: String ): Boolean {
         if( folderDao.getFolder( folderId ) == null )
             return false; // TODO Snackbar "La cartella non esiste"
-        val path: String = documentFile.uri.toString()
         if( (imageDao.checkIfExists( path )) )
             return false;
 
-        return imageDao.insert( Image( folderId = folderId, path = path, name = documentFile.name ?: "Unnamed", actionId = null ) ) > 0
+        return imageDao.insert( Image( folderId = folderId, path = path, name = name, actionId = null ) ) > 0
+    }
+
+    override suspend fun addImage(folderId: Int, documentFile: DocumentFile): Boolean {
+        return addImage(
+            folderId,
+            documentFile.uri.toString(),
+            documentFile.name ?: "Unnamed"
+        )
+    }
+
+    override suspend fun addImage(folderId: Int, path: String, name: String ): Boolean {
+        return imageDao.insert( Image( folderId = folderId, path = path, name = name, actionId = null ) ) > 0
     }
 
     override suspend fun updateImage(image: Image): Unit = imageDao.update( image )
 
     override suspend fun deleteImage(image: Image): Unit = imageDao.delete( image )
+
+    override suspend fun deleteAllImages(): Unit = imageDao.deleteAll()
+
+    override suspend fun deleteUnactionedImages(): Unit = imageDao.deleteUnactioned()
 
     override fun getAllActions(): Flow<List<Action>> = actionDao.getAllActions()
 

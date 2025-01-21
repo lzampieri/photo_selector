@@ -25,6 +25,12 @@ interface ImageDao {
     @Query("DELETE from images WHERE folder_id = :folderId")
     suspend fun deleteByFolder( folderId: Int )
 
+    @Query("DELETE from images")
+    suspend fun deleteAll()
+
+    @Query("DELETE from images WHERE action_id IS NULL AND action_done == 0")
+    suspend fun deleteUnactioned()
+
     @Query("SELECT * from images")
     fun getAllImages(): Flow<List<Image>>
 

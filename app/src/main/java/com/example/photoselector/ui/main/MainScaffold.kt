@@ -57,7 +57,9 @@ fun Navigator(
     val loading by viewModel.loading.collectAsState()
     val imagesDbLoading by viewModel.imagesDbLoading.collectAsState()
 
-    Scaffold( topBar = { PhotoAppBar( onSettings = { navController.navigate( MainDestinations.Settings )} ) } ) { innerPadding ->
+    Scaffold( topBar = { PhotoAppBar(
+        onRefresh = { viewModel.refresh() },
+        onSettings = { navController.navigate( MainDestinations.Settings )} ) } ) { innerPadding ->
         Box(
             modifier = Modifier
                 .padding(innerPadding)

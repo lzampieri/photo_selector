@@ -16,11 +16,17 @@ interface ImageDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(image: Image): Long
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(image: List<Image>): List<Long>
+
     @Update
     suspend fun update(image: Image)
 
     @Delete
     suspend fun delete(image: Image)
+
+    @Query("DELETE from images WHERE id in (:images)")
+    suspend fun delete(images: List<Int>)
 
     @Query("DELETE from images WHERE folder_id = :folderId")
     suspend fun deleteByFolder( folderId: Int )

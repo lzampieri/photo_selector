@@ -78,9 +78,16 @@ class RepositoryImplDatabase(
         return imageDao.insert( Image( folderId = folderId, path = path, name = name, actionId = null ) ) > 0
     }
 
+    override suspend fun addImages(images: List<Image>): Boolean {
+        imageDao.insert( images );
+        return true;
+    }
+
     override suspend fun updateImage(image: Image): Unit = imageDao.update( image )
 
     override suspend fun deleteImage(image: Image): Unit = imageDao.delete( image )
+
+    override suspend fun deleteImages(images: List<Int>): Unit = imageDao.delete( images )
 
     override suspend fun deleteAllImages(): Unit = imageDao.deleteAll()
 

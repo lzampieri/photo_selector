@@ -16,6 +16,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.photoselector.PhotoselectorApplication
 import com.example.photoselector.data.FolderAndCounts
+import com.example.photoselector.data.Image
 import com.example.photoselector.data.ImageAndAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -95,13 +96,6 @@ class AppViewModel (
         refreshFoldersContent()
     }
 
-    data class ImageFile(
-        val name: String,
-        val lastModified: Long,
-        val path: String,
-        var toAdd: Boolean = true
-    )
-
     private fun parseDateFromFilename(folderName: String, default: Long ): Long {
         val regex = Regex("(20\\d\\d[01]\\d[0123]\\d)[^\\d]")
         val matches = regex.findAll( folderName )
@@ -125,19 +119,12 @@ class AppViewModel (
 
         fl.forEach { ff ->
             try {
-                // Old slow version
-//                val dt = DocumentFile.fromTreeUri( appContainer.appContext, Uri.parse( ff.path ) )
-//                dt?.listFiles()?.forEach { fff ->
-//                    if(fff.type?.startsWith("image") == true)
-//                        appContainer.repository.addImageIfNotExists( ff.id, fff )
-//                }
-
                 // Prepare scanning structure
                 val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
                     Uri.parse( ff.path ),
                     DocumentsContract.getTreeDocumentId( Uri.parse( ff.path ) )
                 )
-                val childrenImages: MutableList<ImageFile> = mutableListOf<ImageFile>()
+                val diskImages: MutableList<Image> = mutableListOf<Image>()
 
                 // Define cursor
                 val c: Cursor? = appContainer.appContext.contentResolver.query(
@@ -159,47 +146,100 @@ class AppViewModel (
                 while (c.moveToNext()) {
                     val mime = c.getString(2)
                     if( mime.startsWith("image") ) {
-                        childrenImages.add( ImageFile(
-                            c.getString(1),
-                            parseDateFromFilename( c.getString(0), c.getInt(3).toLong() * 1000 ),
-                            DocumentsContract.buildDocumentUriUsingTree(
+                        diskImages.add( Image(
+                            folderId = ff.id,
+                            name = c.getString(1),
+                            path = DocumentsContract.buildDocumentUriUsingTree(
                                 Uri.parse( ff.path ),
                                 c.getString(0)
-                            ).toString()
+                            ).toString(),
+                            actionId = null
                         ) )
                     }
                 }
+
                 c.close()
                 
                 // Sort
-                childrenImages.sortBy { it.lastModified }
+                diskImages.sortBy { it.path }
 
-                // Compare with actual list of images
+                // Get the actual list of images
                 val imgs = appContainer.repository.getImagesFromFolder( ff.id ).take(1).last()
-                imgs.forEach externalForEach@{ img ->
-                    childrenImages.forEach internalForEach@{ ci ->
-                        if( ci.path == img.path ) {
-                            // The new detected image is already in the list! Not to add
-                            ci.toAdd = false
-                            return@externalForEach // Continue to the next image
-                        }
+                val dbImages = imgs.sortedBy { it.path }
+
+                val imgsToAdd: MutableList<Image> = mutableListOf<Image>()
+                val imgsToRemove: MutableList<Int> = mutableListOf<Int>()
+
+                var diskImagesI = 0;
+                var dbImagesI = 0;
+                while(( diskImagesI < diskImages.size ) || ( dbImagesI < dbImages.size ) ) {
+
+                    if( diskImagesI == diskImages.size ) {
+                        // Images on the disk are done, but on the DB there is still something
+                        imgsToRemove.add( dbImages[ dbImagesI ].id );
+                        dbImagesI += 1;
+                        continue;
                     }
-                    // If reaching here, it means that "img" does not exists anymore!
-                    Log.d("TEST", "Deleting image " + img.name)
-                    appContainer.repository.deleteImage( img )
+
+                    if( dbImagesI == dbImages.size ) {
+                        // Images on the db are done, but on the disk there is still something
+                        imgsToAdd.add( diskImages[ diskImagesI ] );
+                        diskImagesI += 1;
+                        continue;
+                    }
+
+                    if( diskImages[diskImagesI].path == dbImages[dbImagesI].path ) {
+                        // Same image, all fine
+                        diskImagesI += 1;
+                        dbImagesI += 1;
+                        continue;
+                    }
+
+                    if( diskImages[ diskImagesI ].path < dbImages[ dbImagesI ].path ) {
+                        // There is an image on the disk which is not on the DB!
+                        imgsToAdd.add( diskImages[ diskImagesI ] );
+                        diskImagesI += 1;
+                        continue;
+                    }
+
+
+                    if( dbImages[ dbImagesI ].path < diskImages[ diskImagesI ].path ) {
+                        // There is an image on the db which is not on the disk!
+                        imgsToRemove.add( dbImages[ dbImagesI ].id );
+                        dbImagesI += 1;
+                        continue;
+                    }
                 }
 
-                childrenImages.forEach{ ci ->
-                    if( ci.toAdd ) {
-                        appContainer.repository.addImage(ff.id, ci.path, ci.name)
-                        Log.d(
-                            "TEST",
-                            "Adding image " + ci.name + " - " + SimpleDateFormat("dd/MM/yyyy").format(
-                                ci.lastModified
-                            )
-                        )
-                    }
-                }
+                appContainer.repository.addImages( imgsToAdd );
+                appContainer.repository.deleteImages( imgsToRemove );
+
+                // OLD VERSION DISMISSED
+                // Compare with actual list of images
+//                imgs.forEach externalForEach@{ img ->
+//                    childrenImages.forEach internalForEach@{ ci ->
+//                        if( ci.path == img.path ) {
+//                            // The new detected image is already in the list! Not to add
+//                            ci.toAdd = false
+//                            return@externalForEach // Continue to the next image
+//                        }
+//                    }
+//                    // If reaching here, it means that "img" does not exists anymore!
+//                    Log.d("TEST", "Deleting image " + img.name)
+//                    appContainer.repository.deleteImage( img )
+//                }
+//
+//                childrenImages.forEach{ ci ->
+//                    if( ci.toAdd ) {
+//                        appContainer.repository.addImage(ff.id, ci.path, ci.name)
+//                        Log.d(
+//                            "TEST",
+//                            "Adding image " + ci.name + " - " + SimpleDateFormat("dd/MM/yyyy").format(
+//                                ci.lastModified
+//                            )
+//                        )
+//                    }
+//                }
 
 
             } catch ( e: IllegalArgumentException ) {

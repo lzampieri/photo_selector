@@ -1,25 +1,17 @@
 package com.example.photoselector.ui.models
 
 import android.app.Application
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.photoselector.PhotoselectorApplication
-import com.example.photoselector.R
 import com.example.photoselector.data.Action
-import com.example.photoselector.data.FolderAndCounts
 import com.example.photoselector.data.Image
 import com.example.photoselector.data.ImageAndAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -27,7 +19,7 @@ import kotlinx.coroutines.launch
 class SelectorViewModel (
     val folderId: Int,
     val startBy: Int = -1,
-    val app: Application,
+    app: Application,
 ) : AndroidViewModel(app) {
 
     private val appContainer = (app as PhotoselectorApplication).container
@@ -43,7 +35,7 @@ class SelectorViewModel (
     init {
         viewModelScope.launch(Dispatchers.Main) {
             val imgs: List<ImageAndAction> = images.take(1).last()
-            var cPage: Int = 0
+            var cPage = 0
 
             run cPageInit@{
                 // Prima prova ad inizializzare cPage con una immagine con l'ID uguale
@@ -103,10 +95,12 @@ class SelectorViewModel (
         smartNext()
         viewModelScope.launch(Dispatchers.IO) {
             val image: Image = images.take(1).last()[ imagePos ].image
-            image.actionId = actId
-            appContainer.repository.updateImage( image )
+            if( image.actionId != actId ) {
+                image.actionId = actId
+                image.actionDone = false
+                appContainer.repository.updateImage( image )
+            }
         }
-
     }
 
 }
